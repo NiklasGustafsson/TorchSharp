@@ -331,7 +331,7 @@ namespace TorchSharp
             /// <param name="t0">Point at which to start averaging (default: 1e6)</param>
             /// <param name="weight_decay">Weight decay (L2 penalty) (default: 0)</param>
             /// <returns></returns>
-            public static ASGD ASGD(IEnumerable<ParamsGroup<ASGD.Options>> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
+            public static ASGD ASGD(IEnumerable<ASGD.ParamsGroup> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
             {
                 return new Modules.ASGD(parameters, lr, lambd, alpha, t0, weight_decay);
             }
@@ -378,7 +378,7 @@ namespace TorchSharp
             /// <param name="nesterov">Enables Nesterov momentum (default: False)</param>
             /// <param name="maximize"></param>
             /// <returns></returns>
-            public static Modules.SGD SGD(IEnumerable<ParamsGroup<SGD.Options>> parameters, double learningRate, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
+            public static Modules.SGD SGD(IEnumerable<SGD.ParamsGroup> parameters, double learningRate, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
             {
                 return new Modules.SGD(parameters, learningRate, momentum, dampening, weight_decay, nesterov, maximize);
             }
@@ -455,7 +455,7 @@ namespace TorchSharp
                 return _parameter_groups.SelectMany(pg => pg.Parameters);
             }
 
-            public virtual void add_param_group(ParamsGroup param_group)
+            public virtual void add_param_group(OptimizerParamsGroup param_group)
             {
                 _parameter_groups.Add(param_group);
             }
@@ -465,7 +465,7 @@ namespace TorchSharp
             public double InitialLearningRate { get => _defaults.InitialLearningRate; set => _defaults.InitialLearningRate = value; }
 
             protected OptimizerOptions _defaults;
-            protected IList<ParamsGroup> _parameter_groups;
+            protected IList<OptimizerParamsGroup> _parameter_groups;
         }
 
         public class OptimizerOptions
@@ -474,7 +474,7 @@ namespace TorchSharp
             public double InitialLearningRate { get; set; }
         }
 
-        public class ParamsGroup : ILearningRateController
+        public class OptimizerParamsGroup : ILearningRateController
         {
             public IEnumerable<Parameter> Parameters { get; set; }
 
@@ -482,21 +482,6 @@ namespace TorchSharp
 
             public double LearningRate { get => Options.LearningRate.Value; set => Options.LearningRate = value; }
             public double InitialLearningRate { get => Options.InitialLearningRate; set => Options.InitialLearningRate = value; }
-        }
-
-        public class ParamsGroup<TOptions> : ParamsGroup where TOptions : OptimizerOptions
-        {
-            public ParamsGroup()
-            {
-            }
-
-            public ParamsGroup(IEnumerable<Parameter> parameters, TOptions options = null)
-            {
-                base.Options = options;
-            }
-
-            public new OptimizerOptions Options { get => base.Options; set => base.Options = value; }
-
         }
 
         public class SGD : NewOptimizerHelper, IMomentum
@@ -513,7 +498,7 @@ namespace TorchSharp
             /// <param name="maximize"></param>
             /// <returns></returns>
             public SGD(IEnumerable<Parameter> parameters, double lr = 1e-3, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
-                : this(new ParamsGroup<Options>[] { new ParamsGroup<Options> { Parameters = parameters.ToList() } }, lr, momentum, dampening, weight_decay, nesterov, maximize)
+                : this(new ParamsGroup[] { new (parameters.ToList(), lr, momentum, dampening, weight_decay, nesterov, maximize) })
             {
             }
 
@@ -528,25 +513,12 @@ namespace TorchSharp
             /// <param name="nesterov">Enables Nesterov momentum (default: False)</param>
             /// <param name="maximize"></param>
             /// <returns></returns>
-            public SGD(IEnumerable<ParamsGroup<Options>> parameters, double lr = 1e-3, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
+            public SGD(IEnumerable<SGD.ParamsGroup> parameters, double lr = 1e-3, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
             {
-                if (momentum < 0.0) throw new ArgumentException($"Invalid momentum value: {momentum}");
-                if (weight_decay < 0.0) throw new ArgumentException($"Invalid weight_decay value: {weight_decay}");
-                if (nesterov && (momentum <= 0 || dampening != 0)) throw new ArgumentException("Nesterov momentum requires a momentum and zero dampening");
+                var group0 = new ParamsGroup(Enumerable.Empty<Parameter>(), lr, momentum, dampening, weight_decay, nesterov, maximize);
+                add_param_group(group0);
 
-                var options = new Options {
-                    LearningRate = lr,
-                    InitialLearningRate = lr,
-                    dampening = dampening,
-                    maximize = maximize,
-                    momentum = momentum,
-                    nesterov = nesterov,
-                    weight_decay = weight_decay
-                };
-
-                _defaults = options;
-                _parameter_groups = new List<ParamsGroup>();
-
+                _parameter_groups = new List<OptimizerParamsGroup>();
                 foreach (var g in parameters) {
                     add_param_group(g);
                 }
@@ -635,7 +607,7 @@ namespace TorchSharp
                 public Tensor momentum_buffer;
             }
 
-            public override void add_param_group(ParamsGroup param_group)
+            public override void add_param_group(OptimizerParamsGroup param_group)
             {
                 var def = _defaults as Options;
                 if (param_group.Options is null) {
@@ -663,13 +635,39 @@ namespace TorchSharp
                 }
             }
 
-            public class Options : Modules.OptimizerOptions
+            public class Options : OptimizerOptions
             {
                 public double? momentum;
                 public double? dampening;
                 public double? weight_decay;
                 public bool? nesterov;
                 public bool? maximize;
+            }
+
+            public class ParamsGroup : OptimizerParamsGroup
+            {
+                public ParamsGroup(IEnumerable<Parameter> parameters, double lr = 1e-3, double momentum = 0.0, double dampening = 0, double weight_decay = 0, bool nesterov = false, bool maximize = false)
+                {
+                    if (momentum < 0.0) throw new ArgumentException($"Invalid momentum value: {momentum}");
+                    if (weight_decay < 0.0) throw new ArgumentException($"Invalid weight_decay value: {weight_decay}");
+                    if (nesterov && (momentum <= 0 || dampening != 0)) throw new ArgumentException("Nesterov momentum requires a momentum and zero dampening");
+
+                    var options = new Options {
+                        LearningRate = lr,
+                        InitialLearningRate = lr,
+                        dampening = dampening,
+                        maximize = maximize,
+                        momentum = momentum,
+                        nesterov = nesterov,
+                        weight_decay = weight_decay
+                    };
+
+                    base.Options = options;
+                    base.Parameters = parameters;
+                }
+
+                public new Options Options { get => (Options)base.Options; set => base.Options = value; }
+
             }
 
 
@@ -1138,7 +1136,7 @@ namespace TorchSharp
             /// <param name="weight_decay">Weight decay (L2 penalty) (default: 0)</param>
             /// <returns></returns>
             public ASGD(IEnumerable<Parameter> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
-                : this(new ParamsGroup<Options>[] { new ParamsGroup<Options> { Parameters = parameters.ToList() } }, lr, lambd, alpha, t0, weight_decay)
+                : this(new ParamsGroup[] { new ParamsGroup { Parameters = parameters.ToList() } }, lr, lambd, alpha, t0, weight_decay)
             {
             }
 
@@ -1154,23 +1152,16 @@ namespace TorchSharp
             /// <param name="t0">Point at which to start averaging (default: 1e6)</param>
             /// <param name="weight_decay">Weight decay (L2 penalty) (default: 0)</param>
             /// <returns></returns>
-            public ASGD(IEnumerable<ParamsGroup<Options>> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
+            public ASGD(IEnumerable<ParamsGroup> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
             {
-                var options = new Options {
-                    LearningRate = lr,
-                    InitialLearningRate = lr,
-                    lambd = lambd,
-                    alpha = alpha,
-                    t0 = t0,
-                    weight_decay = weight_decay
-                };
+                var group0 = new ParamsGroup(Enumerable.Empty<Parameter>(), lr, lambd, alpha, t0, weight_decay);
+                add_param_group(group0);
 
-                _defaults = options;
-                _parameter_groups = new List<ParamsGroup>();
-
+                _parameter_groups = new List<OptimizerParamsGroup>();
                 foreach (var g in parameters) {
                     add_param_group(g);
                 }
+
             }
 
             public override Tensor step(Func<Tensor> closure = null)
@@ -1248,7 +1239,7 @@ namespace TorchSharp
                 public Tensor ax;
             }
 
-            public override void add_param_group(ParamsGroup param_group)
+            public override void add_param_group(OptimizerParamsGroup param_group)
             {
                 var def = _defaults as Options;
                 if (param_group.Options is null) {
@@ -1284,6 +1275,37 @@ namespace TorchSharp
                 public double? alpha;
                 public double? weight_decay;
                 public double? t0;
+            }
+
+            public class ParamsGroup : OptimizerParamsGroup
+            {
+                public ParamsGroup()
+                {
+                }
+
+                public ParamsGroup(IEnumerable<Parameter> parameters, Options options)
+                {
+                    base.Options = options;
+                    base.Parameters = parameters;
+                }
+
+                public ParamsGroup(IEnumerable<Parameter> parameters, double lr = 1e-3, double lambd = 1e-4, double alpha = 0.75, double t0 = 1e6, double weight_decay = 0)
+                {
+                    var options = new Options {
+                        LearningRate = lr,
+                        InitialLearningRate = lr,
+                        lambd = lambd,
+                        alpha = alpha,
+                        t0 = t0,
+                        weight_decay = weight_decay
+                    };
+
+                    base.Options = options;
+                    base.Parameters = parameters;
+                }
+
+                public new Options Options { get => (Options)base.Options; set => base.Options = value; }
+
             }
 
             private Dictionary<Parameter, State> _state = new Dictionary<Parameter, State>();

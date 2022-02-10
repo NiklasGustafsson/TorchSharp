@@ -247,13 +247,13 @@ let run epochs =
     let lr = 2.50
 
     let pgs = [|
-        ParamsGroup<SGD.Options>(Parameters = model.parameters(), Options = SGD.Options(momentum = 1.0, dampening = 0.5));
-        ParamsGroup<SGD.Options>(model.parameters(), SGD.Options(momentum = 1.0, dampening = 0.5))
+        SGD.ParamsGroup(model.parameters(), momentum = 1.0, dampening = 0.5);
+        SGD.ParamsGroup(model.parameters(), momentum = 1.0, dampening = 0.5)
     |]
 
     let optimizer = SGD([|
-        ParamsGroup<SGD.Options>(Parameters = model.parameters(), Options = SGD.Options(LearningRate = 0.005, momentum = 1.0, dampening = 0.5));
-        ParamsGroup<SGD.Options>(model.parameters(), SGD.Options(momentum = 1.0, dampening = 0.5))
+        SGD.ParamsGroup(model.parameters(), lr = 0.005, momentum = 1.0, dampening = 0.5);
+        SGD.ParamsGroup(model.parameters(), momentum = 1.0, dampening = 0.5)
     |], lr)
 
     let scheduler = lr_scheduler.StepLR(optimizer, 1, 0.95, last_epoch=15)

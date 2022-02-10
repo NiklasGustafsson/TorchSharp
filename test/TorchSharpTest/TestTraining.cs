@@ -667,15 +667,15 @@ namespace TorchSharp
 
             var pgs = new[]
             {
-                new ParamsGroup<ASGD.Options>(lin1.parameters(), new () { LearningRate = 0.005f }),
-                new ParamsGroup<ASGD.Options>(lin2.parameters())
+                new ASGD.ParamsGroup(lin1.parameters(), lr: 0.005f),
+                new ASGD.ParamsGroup(lin2.parameters())
             };
 
 
-            var optimizer = torch.optim.ASGD(new ParamsGroup<ASGD.Options>[]
+            var optimizer = torch.optim.ASGD(new ASGD.ParamsGroup[]
             {
-                new () { Parameters = lin1.parameters(), Options = { LearningRate = 0.005f } },
-                new () { Parameters = lin2.parameters() }
+                new (lin1.parameters(), lr: 0.005f),
+                new (lin2.parameters())
             });
 
             var loss = mse_loss(Reduction.Sum);
@@ -987,9 +987,9 @@ namespace TorchSharp
             var lin2 = Linear(100, 10);
             var seq = Sequential(("lin1", lin1), ("relu1", ReLU()), ("lin2", lin2));
 
-            var pgs = new Modules.ParamsGroup<SGD.Options>[] {
-                new () { Parameters = lin1.parameters(), Options = { LearningRate = 0.005f } },
-                new () { Parameters = lin2.parameters() } };
+            var pgs = new Modules.SGD.ParamsGroup[] {
+                new (lin1.parameters(), lr: 0.005f),
+                new (lin2.parameters()) };
 
             var x = torch.randn(new long[] { 64, 1000 });
             var y = torch.randn(new long[] { 64, 10 });
