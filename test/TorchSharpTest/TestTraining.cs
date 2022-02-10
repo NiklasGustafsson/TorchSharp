@@ -667,12 +667,12 @@ namespace TorchSharp
 
             var pgs = new[]
             {
-                new ASGD.ParamsGroup(lin1.parameters(), lr: 0.005f),
-                new ASGD.ParamsGroup(lin2.parameters())
+                new ASGD.Parameters(lin1.parameters(), lr: 0.005f),
+                new ASGD.Parameters(lin2.parameters())
             };
 
 
-            var optimizer = torch.optim.ASGD(new ASGD.ParamsGroup[]
+            var optimizer = torch.optim.ASGD(new ASGD.Parameters[]
             {
                 new (lin1.parameters(), lr: 0.005f),
                 new (lin2.parameters())
@@ -987,7 +987,7 @@ namespace TorchSharp
             var lin2 = Linear(100, 10);
             var seq = Sequential(("lin1", lin1), ("relu1", ReLU()), ("lin2", lin2));
 
-            var pgs = new Modules.SGD.ParamsGroup[] {
+            var pgs = new Modules.SGD.Parameters[] {
                 new (lin1.parameters(), lr: 0.005f),
                 new (lin2.parameters()) };
 
