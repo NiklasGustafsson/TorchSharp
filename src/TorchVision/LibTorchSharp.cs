@@ -41,5 +41,8 @@ namespace TorchSharp
 
         [DllImport("LibTorchSharp")]
         internal static extern void THSVision_RGB_BRGA(IntPtr inputBytes, IntPtr outBytes, long inputChannelCount, long imageSize);
+
+        [DllImport("LibTorchSharp")]
+        internal static extern IntPtr THSVision_nms(IntPtr boxes, IntPtr scores, double iou_threshold);
     }
 }

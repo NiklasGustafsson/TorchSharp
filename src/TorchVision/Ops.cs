@@ -2,6 +2,8 @@
 
 using static TorchSharp.torch;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System;
 
 #nullable enable
 namespace TorchSharp
@@ -84,6 +86,13 @@ namespace TorchSharp
                     var ids = torch.from_array(keep.ToArray()).to_type(ScalarType.Int64).to(device: boxes.device);
                     return ids.MoveToOuterDisposeScope();
                 }
+            }
+
+            public static Tensor native_nms(Tensor boxes, Tensor scores, double iou_threshold = 0.5)
+            {
+                var res = NativeMethods.THSVision_nms(boxes.Handle, scores.Handle, iou_threshold);
+                if (res == System.IntPtr.Zero) CheckForErrors();
+                return Tensor.UnsafeCreateTensor(res);
             }
         }
     }

@@ -2,8 +2,22 @@
 #include "THSVision.h"
 
 #include <torch/nn/init.h>
+#if TORCHVISION
+#include <vision.h>
+#include <ops/nms.h>
+#endif
 
-// The image processing code was ported from the Python implmentation found in:
+Tensor THSVision_nms(const Tensor boxes, const Tensor scores, double iou_threshold)
+{
+#if TORCHVISION
+    CATCH_TENSOR(vision::ops::nms(*boxes, *scores, iou_threshold));
+#else
+    torch_last_err = strdup("nms not available in DEBUG Windows builds.");
+    return nullptr;
+#endif
+}
+
+// The image processing code was ported from the Python implementation found in:
 //
 // https://github.com/pytorch/vision/blob/main/torchvision/transforms/functional_tensor.py
 

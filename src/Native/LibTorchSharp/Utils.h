@@ -5,6 +5,16 @@
 
 #include "torch/torch.h"
 
+#define TORCHVISION true
+
+#ifdef WIN32
+#ifdef DEBUG
+#undef TORCHVISION
+#define TORCHVISION false
+#endif
+#endif
+
+
 extern thread_local char *torch_last_err;
 
 typedef torch::Tensor *Tensor;

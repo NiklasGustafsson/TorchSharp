@@ -57,11 +57,15 @@ if(NOT WIN32)
 endif()
 
 # Add libTorch bindings
-include_directories(${TORCH_INCLUDE_DIRS})
+include_directories("../../../vision/torchvision/csrc" ${TORCH_INCLUDE_DIRS})
 
 add_library(LibTorchSharp SHARED ${SOURCES} ${RESOURCES})
 
 target_link_libraries(LibTorchSharp ${TORCH_LIBRARIES})
+
+if(WIN32)
+target_link_libraries(LibTorchSharp ${PROJECT_SOURCE_DIR}/../../../binaries/CPU/libtorchvision.lib)
+endif()
 
 set_property(TARGET LibTorchSharp PROPERTY CXX_STANDARD 14)
 
