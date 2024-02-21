@@ -68,7 +68,12 @@ namespace TorchSharp
             /// <returns></returns>
             public override string ToString()
             {
-                return type == DeviceType.CPU ? "cpu" : (index == -1) ? $"{type.ToString().ToLower()}" : $"{type.ToString().ToLower()}:{index}";
+                switch (type) {
+                    case DeviceType.CUDA:
+                        return (index == -1) ? type.ToString().ToLower() : $"{type.ToString().ToLower()}:{index}";
+                    default:
+                        return type.ToString().ToLower();                    
+                }
             }
 
             public static implicit operator Device(string description)
@@ -87,6 +92,11 @@ namespace TorchSharp
         /// Convenience declaration of a CPU device accessible everywhere.
         /// </summary>
         public static readonly Device CPU = InitializeDevice(new Device(DeviceType.CPU, -1));
+
+        /// <summary>
+        /// Convenience declaration of a MPS device accessible everywhere.
+        /// </summary>
+        public static readonly Device MPS = InitializeDevice(new Device(DeviceType.MPS, -1));
 
         /// <summary>
         /// Convenience declaration of a META device accessible everywhere.

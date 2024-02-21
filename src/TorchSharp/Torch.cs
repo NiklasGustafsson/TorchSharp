@@ -585,6 +585,7 @@ namespace TorchSharp
         FPGA = 7, // FPGA
         MSNPU = 8, // MSNPU
         XLA = 9, // XLA / TPU
+        MPS = 13, // Apple Silicon
         META = 14,
     }
 }

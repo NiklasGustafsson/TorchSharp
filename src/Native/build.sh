@@ -115,4 +115,8 @@ echo "Building Machine Learning native components from $DIR to $(pwd)"
 set -x # turn on trace
 cmake "$DIR" -G "Unix Makefiles" $__cmake_defines
 set +x # turn off trace
-make install
+
+if [ ! -f .install.guard ]; then
+    make install
+    touch .install.guard
+fi
