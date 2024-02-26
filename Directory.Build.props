@@ -143,7 +143,7 @@
     <LibTorchCudaLocalNameSuffix>cu$(CudaVersionNoDot)</LibTorchCudaLocalNameSuffix>
     <LibTorchArchiveCoreName Condition="'$(TargetOS)' == 'windows'">libtorch-win-shared-with-deps$(LibTorchDebug)</LibTorchArchiveCoreName>
     <LibTorchArchiveCoreName Condition="'$(TargetOS)' == 'linux'">libtorch-cxx11-abi-shared-with-deps</LibTorchArchiveCoreName>
-    <LibTorchArchiveCoreName Condition="'$(TargetOS)' == 'mac'">libtorch-macos</LibTorchArchiveCoreName>
+    <LibTorchArchiveCoreName Condition="'$(TargetOS)' == 'mac'">libtorch-macos-x86_64</LibTorchArchiveCoreName>
     <LibTorchArchiveCoreName Condition="'$(LibTorchArchiveSource)' == 'conda'">pytorch</LibTorchArchiveCoreName>
     <LibTorchCpuArchiveBase>$(LibTorchArchiveCoreName)-$(LibTorchVersion)$(LibTorchCpuArchiveNameSuffix)</LibTorchCpuArchiveBase>
     <LibTorchCudaArchiveBase>$(LibTorchArchiveCoreName)-$(LibTorchVersion)$(LibTorchCudaArchiveNameSuffix)</LibTorchCudaArchiveBase>
