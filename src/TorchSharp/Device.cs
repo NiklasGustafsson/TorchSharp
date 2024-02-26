@@ -89,6 +89,11 @@ namespace TorchSharp
         public static readonly Device CPU = InitializeDevice(new Device(DeviceType.CPU, -1));
 
         /// <summary>
+        /// Convenience declaration of a MPS device accessible everywhere.
+        /// </summary>
+        public static readonly Device MPS = InitializeDevice(new Device(DeviceType.MPS, -1));
+
+        /// <summary>
         /// Convenience declaration of a META device accessible everywhere.
         /// </summary>
         public static readonly Device META = InitializeDevice(new Device(DeviceType.META, -1));

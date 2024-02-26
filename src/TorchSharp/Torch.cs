@@ -27,12 +27,11 @@ namespace TorchSharp
 #error "Please update cudaVersion to match CudaVersionDot"
 #endif
 
-        static string archSuffix = RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant();
-
         static string nativeRid =>
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"win-{archSuffix}" :
-            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? $"linux-{archSuffix}" :
-            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? $"osx-{archSuffix}" :
+            RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"win-x64" :
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? $"linux-x64" :
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX)&& RuntimeInformation.OSArchitecture == Architecture.Arm64 ? "osx-arm64" :
+            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx-x64" :
             "any";
 
         static string nativeGlob =>
@@ -585,6 +584,7 @@ namespace TorchSharp
         FPGA = 7, // FPGA
         MSNPU = 8, // MSNPU
         XLA = 9, // XLA / TPU
+        MPS = 13, // Apple Silicon
         META = 14,
     }
 }
