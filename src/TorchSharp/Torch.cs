@@ -28,6 +28,7 @@ namespace TorchSharp
 #endif
 
         static bool isAppleSilicon = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.Arm64;
+        
         static string nativeRid =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"win-x64" :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? $"linux-x64" :
