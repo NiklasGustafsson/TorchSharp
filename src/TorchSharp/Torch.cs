@@ -27,10 +27,11 @@ namespace TorchSharp
 #error "Please update cudaVersion to match CudaVersionDot"
 #endif
 
+        static bool isAppleSilicon = RuntimeInformation.IsOSPlatform(OSPlatform.OSX) && RuntimeInformation.OSArchitecture == Architecture.Arm64;
         static string nativeRid =>
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"win-x64" :
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? $"linux-x64" :
-            RuntimeInformation.IsOSPlatform(OSPlatform.OSX)&& RuntimeInformation.OSArchitecture == Architecture.Arm64 ? "osx-arm64" :
+            isAppleSilicon ? "osx-arm64" :
             RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "osx-x64" :
             "any";
 
@@ -259,6 +260,11 @@ namespace TorchSharp
 
         public static bool TryInitializeDeviceType(DeviceType deviceType)
         {
+            if (deviceType == DeviceType.MPS && !isAppleSilicon)
+            {
+                return false;
+            }
+
             LoadNativeBackend(deviceType == DeviceType.CUDA, out _);
             if (deviceType == DeviceType.CUDA) {
                 return cuda.CallTorchCudaIsAvailable();
@@ -269,6 +275,11 @@ namespace TorchSharp
 
         public static void InitializeDeviceType(DeviceType deviceType)
         {
+            if (deviceType == DeviceType.MPS && !isAppleSilicon)
+            {
+                throw new InvalidOperationException($"Torch device type 'MPS' is not available on this platform.");
+            }
+
             LoadNativeBackend(deviceType == DeviceType.CUDA, out var trace);
             if (deviceType == DeviceType.CUDA) {
 
