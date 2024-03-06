@@ -463,16 +463,18 @@ namespace TorchSharp
                     byte[] buffer = new byte[bufferSize];
                     while (totalSize > 0) {
                         // Read in the current buffer size
-                        int curBufferSize = (int)Math.Min(totalSize, bufferSize);
-                        stream.Read(buffer, 0, curBufferSize);
+                        int bytesRead = stream.Read(buffer, 0, (int)Math.Min(totalSize, bufferSize));
+
+                        if (bytesRead == 0)
+                            throw new EndOfStreamException();
 
                         // Copy the contents over to the span
-                        var span = new Span<byte>((void*)ptr, curBufferSize);
-                        buffer.AsSpan(0, curBufferSize).CopyTo(span);
+                        var span = new Span<byte>((void*)ptr, bytesRead);
+                        buffer.AsSpan(0, bytesRead).CopyTo(span);
                         
                         // Increment our pointer and decrease the total size of elements we have to write
-                        ptr += curBufferSize;
-                        totalSize -= curBufferSize;
+                        ptr += bytesRead;
+                        totalSize -= bytesRead;
                     }
                 }
             }
@@ -6496,11 +6498,18 @@ namespace TorchSharp
                 var leadingRows = torch.maxRows - trailingRows;
 
                 var dim = t.dim();
+
                 if (t.size().Length == 0) return "";
                 var sb = new StringBuilder(isFCreate ? string.Join("", Enumerable.Repeat(' ', (int)(mdim - dim))) : "");
                 sb.Append('[');
                 var currentSize = t.size()[0];
-                if (dim == 1) {
+                if (currentSize == 0) {
+                    // print nothing
+                }
+                else if (dim == 0) {
+                    PrintValue(sb, t.dtype, t.ToScalar(), fltFormat, actualCulturInfo);
+                }
+                else if (dim == 1) {
                     if (currentSize <= torch.maxColumns) {
                         for (var i = 0; i < currentSize - 1; i++) {
                             PrintValue(sb, t.dtype, t[i].ToScalar(), fltFormat, actualCulturInfo);
@@ -6572,7 +6581,6 @@ namespace TorchSharp
                 var leadingRows = torch.maxRows - trailingRows;
 
                 var dim = t.dim();
-                if (t.size().Length == 0) return "";
                 var sb = new StringBuilder();
 
                 if (top) {
@@ -6648,7 +6656,10 @@ namespace TorchSharp
                 }
 
                 var currentSize = t.size()[0];
-                if (dim == 1) {
+                if (currentSize == 0) {
+                    // do nothing
+                }
+                else if (dim == 1) {
                     if (currentSize <= torch.maxColumns) {
                         for (var i = 0; i < currentSize - 1; i++) {
                             PrintValue(sb, t.dtype, t[i].ToScalar(), fltFormat, actualCulturInfo);
