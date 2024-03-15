@@ -149,7 +149,7 @@
     <LibTorchCudaArchiveBase>$(LibTorchArchiveCoreName)-$(LibTorchVersion)$(LibTorchCudaArchiveNameSuffix)</LibTorchCudaArchiveBase>
     <LibTorchCpuLocalBase>$(LibTorchArchiveCoreName)-$(LibTorchVersion)$(LibTorchCpuLocalNameSuffix)</LibTorchCpuLocalBase>
     <LibTorchCudaLocalBase>$(LibTorchArchiveCoreName)-$(LibTorchVersion)$(LibTorchCudaLocalNameSuffix)</LibTorchCudaLocalBase>
-    <LibTorchCmakePath>$(IntermediateOutputRootPath)libtorch-cpu\$(LibTorchCpuLocalBase)\libtorch\share\cmake\Torch</LibTorchCmakePath>
+    <LibTorchCmakePath>$(RootIntermediateOutputPath)AnyCPU.$(Configuration)\$(LibTorchCpuLocalBase)\libtorch\share\cmake\Torch</LibTorchCmakePath>
   </PropertyGroup>
 
   <!-- Language configuration -->

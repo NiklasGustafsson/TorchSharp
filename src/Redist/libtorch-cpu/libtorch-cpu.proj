@@ -19,7 +19,7 @@
     <DownloadedArchiveFileName>$(ArchiveBaseName)$(ArchiveExtension)</DownloadedArchiveFileName>
     <DownloadedArchive>$(DownloadedArchiveFolder)$(DownloadedArchiveFileName)</DownloadedArchive>
     <ArchiveShaFile>$(IntermediateOutputPath)$(ArchiveBaseName)$(ArchiveExtension).sha</ArchiveShaFile>
-    <ExtractDirectory>$(IntermediateOutputPath)$(LocalBaseName)</ExtractDirectory>
+    <ExtractDirectory>$(RootIntermediateOutputPath)AnyCPU.$(Configuration)\$(LocalBaseName)</ExtractDirectory>
     <ExtractSemaphore>$(ExtractDirectory)\.extracted</ExtractSemaphore>
     <LocalShaFile>$(MSBuildProjectDirectory)\$(ArchiveBaseName)$(ArchiveExtension).sha</LocalShaFile>
     <LicenseUrl>https://raw.githubusercontent.com/pytorch/pytorch/master/LICENSE</LicenseUrl>
