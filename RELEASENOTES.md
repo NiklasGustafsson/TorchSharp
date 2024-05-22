@@ -2,11 +2,57 @@
 
 Releases, starting with 9/2/2021, are listed with the most recent release at the top.
 
+# NuGet Version 0.102.5
+
+__Breaking Changes__:
+
+- `torchvision.dataset.MNIST` will try more mirrors.
+    - The thrown exception might be changed when it fails to download `MNIST`, `FashionMNIST` or `KMNIST`.
+- `ObjectDisposedException` will now be thrown when trying to use the disposed dispose scopes.
+    - The constructor of dispose scopes is no longer `public`. Use `torch.NewDisposeScope` instead.
+
+__API Changes__:
+
+- #1291 `Tensor.grad()` and `Tensor.set_grad()` have been replaced by a new property `Tensor.grad`.
+    - A potential memory leak caused by `set_grad` has been resolved.
+- `Include` method of dispose scopes has been removed. Use `Attach` instead.
+- Two more `Attach` methods that accepts `IEnumerable<IDisposable>`s and arrays as the parameter have been added into dispose scopes.
+- A new property `torch.CurrentDisposeScope` has been added to provide the ability to get the current dispose scope.
+
+__Bug Fixes__:
+
+- #1300 `Adadelta`, `Adam` and `AdamW` will no longer throw `NullReferenceException` when `maximize` is `true` and `grad` is `null`.
+- `torch.normal` will now correctly return a leaf tensor.
+- New options `disposeBatch` and `disposeDataset` have been added into `DataLoader`.
+    - The default collate functions will now always dispose the intermediate tensors, rather than wait for the next iteration.
+
+__Bug Fixes__:
+
+- `TensorDataset` will now keep the aliases detached from dispose scopes, to avoid the unexpected disposal.
+- `DataLoaderEnumerator` has been completely rewritten to resolve the unexpected shuffler disposal, the ignorance of `drop_last`, the incorrect count of worker, and the potential leak cause by multithreading.
+- #1303 Allow dispose scopes to be disposed out of LIFO order.
+
+# NuGet Version 0.102.4
+
+__Breaking Changes__:
+
+Correct `torch.finfo`. (`torch.set_default_dtype`, `Categorical.entropy`, `_CorrCholesky.check`, `Distribution.ClampProbs`, `FisherSnedecor.rsample`, `Gamma.rsample`, `Geometric.rsample`, `distributions.Gumbel`, `Laplace.rsample`, `SigmoidTransform._call` and `SigmoidTransform._inverse` are influenced.)<br/>
+
+__API Changes__:
+
+#1284 make `torch.unique` and `torch.unique_consecutive` public.<br/>
+
 # NuGet Version 0.102.3
+
+__Breaking Changes__:
+
+The 'paddingMode' parameter of convolution has been changed to 'padding_mode', and the 'outputPadding' is now 'output_padding'.
 
 __API Changes__:
 
 #1243 `fuse_conv_bn_weights` and `fuse_linear_bn_weights` are added.<br/>
+#1274 ConvTranspose3d does not accept non-uniform kernelSize/stride values<br/>
+
 
 # NuGet Version 0.102.2
 

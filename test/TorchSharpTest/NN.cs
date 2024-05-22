@@ -2152,14 +2152,14 @@ namespace TorchSharp
             output.backward();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
 
             seq.zero_grad();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.True(grad is null || grad!.count_nonzero().item<long>() == 0);
             }
         }
@@ -2186,14 +2186,14 @@ namespace TorchSharp
             output.backward();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
 
             seq.zero_grad();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.True(grad is null || grad!.count_nonzero().item<long>() == 0);
             }
         }
@@ -2220,14 +2220,14 @@ namespace TorchSharp
             output.backward();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
 
             seq.zero_grad();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.True(grad is null || grad!.count_nonzero().item<long>() == 0);
             }
         }
@@ -2254,9 +2254,9 @@ namespace TorchSharp
 
             output.backward();
 
-            var scalerGrad = scaler.grad();
-            var weightGrad = linear.weight.grad();
-            var biasGrad = linear.bias.grad();
+            var scalerGrad = scaler.grad;
+            var weightGrad = linear.weight.grad;
+            var biasGrad = linear.bias.grad;
             Assert.True(scalerGrad is not null && scalerGrad.shape.Length == 2);
             Assert.True(weightGrad is not null && weightGrad.shape.Length == 2);
             Assert.True(biasGrad is not null && biasGrad.shape.Length == 2);
@@ -2328,7 +2328,7 @@ namespace TorchSharp
             var gradCounts = 0;
 
             foreach (var (name, parm) in modT.named_parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 gradCounts += grad is not null ? (grad.Handle == IntPtr.Zero ? 0 : 1) : 0;
             }
 
@@ -2346,7 +2346,7 @@ namespace TorchSharp
             gradCounts = 0;
 
             foreach (var parm in modF.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 gradCounts += grad is not null ? (grad.Handle == IntPtr.Zero ? 0 : 1) : 0;
             }
 
@@ -2434,7 +2434,7 @@ namespace TorchSharp
                     Assert.Equal(64, output.shape[1]);
                     Assert.Equal(28, output.shape[2]);
                 }
-                using (var conv = Conv1d(3, 64, 3, padding: 1, paddingMode: PaddingModes.Reflect, device: device))
+                using (var conv = Conv1d(3, 64, 3, padding: 1, padding_mode: PaddingModes.Reflect, device: device))
                 using (var output = conv.call(t)) {
                     Assert.Equal(device.type, output.device_type);
                     Assert.Equal(16, output.shape[0]);
@@ -2559,7 +2559,7 @@ namespace TorchSharp
                     Assert.Equal(28, output.shape[2]);
                     Assert.Equal(28, output.shape[3]);
                 }
-                using (var conv = Conv2d(3, 64, (3, 3), padding: (1, 1), paddingMode: PaddingModes.Reflect, device: device))
+                using (var conv = Conv2d(3, 64, (3, 3), padding: (1, 1), padding_mode: PaddingModes.Reflect, device: device))
                 using (var output = conv.call(t)) {
                     Assert.Equal(device.type, output.device_type);
                     Assert.Equal(16, output.shape[0]);
@@ -2682,7 +2682,7 @@ namespace TorchSharp
                     Assert.Equal(28, output.shape[3]);
                     Assert.Equal(28, output.shape[4]);
                 }
-                using (var conv = Conv3d(3, 64, (3, 3, 3), padding: (1, 1, 1), paddingMode: PaddingModes.Replicate))
+                using (var conv = Conv3d(3, 64, (3, 3, 3), padding: (1, 1, 1), padding_mode: PaddingModes.Replicate))
                 using (var output = conv.call(t)) {
                     Assert.Equal(16, output.shape[0]);
                     Assert.Equal(64, output.shape[1]);
@@ -2730,12 +2730,36 @@ namespace TorchSharp
             var shape = new long[] { 16, 3, 28, 28 };
             foreach (var device in TestUtils.AvailableDevices(true)) {
                 Tensor t = torch.rand(shape, device: device);
-                var conv = ConvTranspose2d(3, 64, 3, device: device);
-                var output = conv.call(t);
-                Assert.Equal(16, output.shape[0]);
-                Assert.Equal(64, output.shape[1]);
-                Assert.Equal(30, output.shape[2]);
-                Assert.Equal(30, output.shape[3]);
+                {
+                    var conv = ConvTranspose2d(3, 64, 3, device: device);
+                    var output = conv.call(t);
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(30, output.shape[2]),
+                    () => Assert.Equal(30, output.shape[3])
+                    );
+                }
+                {
+                    var conv = ConvTranspose2d(3, 64, (3,3), device: device);
+                    var output = conv.call(t);
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(30, output.shape[2]),
+                    () => Assert.Equal(30, output.shape[3])
+                    );
+                }
+                {
+                    var conv = ConvTranspose2d(3, 64, (1,2), stride: (1,2), device: device);
+                    var output = conv.call(t);
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(28, output.shape[2]),
+                    () => Assert.Equal(56, output.shape[3])
+                    );
+                }
             }
         }
 
@@ -2745,13 +2769,42 @@ namespace TorchSharp
             var shape = new long[] { 16, 3, 28, 28, 28 };
             foreach (var device in TestUtils.AvailableDevices(true)) {
                 Tensor t = torch.rand(shape, device: device);
-                var conv = ConvTranspose3d(3, 64, 3, device: device);
-                var output = conv.call(t);
-                Assert.Equal(16, output.shape[0]);
-                Assert.Equal(64, output.shape[1]);
-                Assert.Equal(30, output.shape[2]);
-                Assert.Equal(30, output.shape[3]);
-                Assert.Equal(30, output.shape[4]);
+                {
+                    using var conv = ConvTranspose3d(3, 64, 3, device: device);
+                    using var output = conv.call(t);
+
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(30, output.shape[2]),
+                    () => Assert.Equal(30, output.shape[3]),
+                    () => Assert.Equal(30, output.shape[4])
+                    );
+                }
+                {
+                    using var conv = ConvTranspose3d(3, 64, (3,3,3), device: device);
+                    using var output = conv.call(t);
+
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(30, output.shape[2]),
+                    () => Assert.Equal(30, output.shape[3]),
+                    () => Assert.Equal(30, output.shape[4])
+                    );
+                }
+                {
+                    using var conv = ConvTranspose3d(3, 64, (1,2,2), stride: (1,2,2), device: device);
+                    using var output = conv.call(t);
+
+                    Assert.Multiple(
+                    () => Assert.Equal(16, output.shape[0]),
+                    () => Assert.Equal(64, output.shape[1]),
+                    () => Assert.Equal(28, output.shape[2]),
+                    () => Assert.Equal(56, output.shape[3]),
+                    () => Assert.Equal(56, output.shape[4])
+                    );
+                }
             }
         }
         #endregion
@@ -2786,14 +2839,14 @@ namespace TorchSharp
             output.backward();
 
             foreach (var (pName, parm) in module.named_parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
 
             module.zero_grad();
 
             foreach (var (pName, parm) in module.named_parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.True(grad is null || grad!.count_nonzero().item<long>() == 0);
             }
 
@@ -2963,7 +3016,7 @@ namespace TorchSharp
             output.backward();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
             }
         }
 
@@ -2984,7 +3037,7 @@ namespace TorchSharp
             output.backward();
 
             foreach (var parm in seq.parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
             }
         }
 
@@ -3068,7 +3121,7 @@ namespace TorchSharp
                 var y = torch.randn(2, device: torch.CUDA);
                 torch.nn.functional.mse_loss(module.call(x), y).backward();
                 foreach (var (pName, parm) in module.named_parameters()) {
-                    var grad = parm.grad();
+                    var grad = parm.grad;
                     Assert.NotNull(grad);
                 }
 
@@ -3081,7 +3134,7 @@ namespace TorchSharp
                 y = torch.randn(2);
                 torch.nn.functional.mse_loss(module.call(x), y).backward();
                 foreach (var (pName, parm) in module.named_parameters()) {
-                    var grad = parm.grad();
+                    var grad = parm.grad;
                     Assert.NotNull(grad);
                 }
             }
@@ -3098,7 +3151,7 @@ namespace TorchSharp
             var y = torch.randn(2, float64);
             torch.nn.functional.mse_loss(module.call(x), y).backward();
             foreach (var (pName, parm) in module.named_parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
 
@@ -3111,7 +3164,7 @@ namespace TorchSharp
             y = torch.randn(2);
             torch.nn.functional.mse_loss(module.call(x), y).backward();
             foreach (var (pName, parm) in module.named_parameters()) {
-                var grad = parm.grad();
+                var grad = parm.grad;
                 Assert.NotNull(grad);
             }
         }
@@ -3127,7 +3180,7 @@ namespace TorchSharp
                 var y = torch.randn(2, float16, torch.CUDA);
                 torch.nn.functional.mse_loss(module.call(x), y).backward();
                 foreach (var (pName, parm) in module.named_parameters()) {
-                    var grad = parm.grad();
+                    var grad = parm.grad;
                     Assert.NotNull(grad);
                 }
 
@@ -3140,7 +3193,7 @@ namespace TorchSharp
                 y = torch.randn(2);
                 torch.nn.functional.mse_loss(module.call(x), y).backward();
                 foreach (var (pName, parm) in module.named_parameters()) {
-                    var grad = parm.grad();
+                    var grad = parm.grad;
                     Assert.NotNull(grad);
                 }
             }
