@@ -641,7 +641,7 @@ namespace TorchSharp
         {
             var rel = Hardswish();
             foreach (var device in TestUtils.AvailableDevices()) {
-                var input = torch.from_array(new float[] { -3.5f, 0.6f, 3.25f }).to(device);
+                var input = torch.from_array(new float[] { -3.5f, 0.6f, 3.25f }).to(device, non_blocking: true);
                 var output = rel.call(input);
                 Assert.Equal(device.type, output.device_type);
 
@@ -6572,6 +6572,46 @@ namespace TorchSharp
             var counter = 0;
 
             var hook = (Module<Tensor, Tensor> m, Tensor input, Tensor output) => { counter += 1; return output; };
+
+            var handle = lin1.register_forward_hook(hook);
+
+            lin1.call(input);
+            Assert.Equal(1, counter);
+
+            handle.remove();
+
+            lin1.call(input);
+            Assert.Equal(1, counter);
+        }
+
+        [Fact]
+        public void TestModulePreHooksGeneric()
+        {
+            var lin1 = torch.nn.Linear(100, 10);
+            var input = torch.randn(32, 100, 100);
+            var counter = 0;
+
+            var pre_hook = (Module<Tensor, Tensor> m) => { counter += 1;};
+
+            var handle = lin1.register_forward_pre_hook(pre_hook);
+
+            lin1.call(input);
+            Assert.Equal(1, counter);
+
+            handle.remove();
+
+            lin1.call(input);
+            Assert.Equal(1, counter);
+        }
+
+        [Fact]
+        public void TestModulePostHooksGeneric()
+        {
+            var lin1 = torch.nn.Linear(100, 10);
+            var input = torch.randn(32, 100, 100);
+            var counter = 0;
+
+            var hook = (Module<Tensor, Tensor> m) => { counter += 1;};
 
             var handle = lin1.register_forward_hook(hook);
 
