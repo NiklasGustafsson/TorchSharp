@@ -26,7 +26,7 @@ namespace TorchSharp
                 }
 
                 if (padding_type.HasValue)
-                    return torch.nn.functional.conv1d_padded(input, weight, bias, stride[0], padding_type.Value, dilation[0], groups);
+                    return torch.nn.functional.conv1d_padding(input, weight, bias, stride[0], padding_type.Value, dilation[0], groups);
 
                 return torch.nn.functional.conv1d(input, weight, bias, stride[0], padding?[0], dilation[0], groups);
             }
@@ -125,7 +125,7 @@ namespace TorchSharp
                 /// <param name="dilation">Spacing between kernel elements. Default: (1,)</param>
                 /// <param name="groups">Number of blocked connections from input channels to output channels. Default: 1</param>
                 /// <returns></returns>
-                public static Tensor conv1d_padded(Tensor input, Tensor weight, Tensor? bias = null,
+                public static Tensor conv1d_padding(Tensor input, Tensor weight, Tensor? bias = null,
                     long? stride = null,
                     Padding padding = Padding.Valid,
                     long? dilation = null,
@@ -137,7 +137,7 @@ namespace TorchSharp
                     unsafe {
                         fixed (long* pstrides = strides, pdilation = dilationArray) {
                             var res =
-                                THSTensor_conv1d_padded(input.Handle, weight.Handle, biasHandle,
+                                THSTensor_conv1d_padding(input.Handle, weight.Handle, biasHandle,
                                     (IntPtr)pstrides, strides.Length,
                                     (int)padding,
                                     (IntPtr)pdilation, dilationArray.Length,

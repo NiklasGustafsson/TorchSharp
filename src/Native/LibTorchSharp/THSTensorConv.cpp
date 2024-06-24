@@ -349,7 +349,7 @@ static c10::string_view get_padding_str(int padding) {
     TORCH_CHECK(false, "Invalid padding string specified");
 }
 
-Tensor THSTensor_conv1d_padded(
+Tensor THSTensor_conv1d_padding(
     const Tensor input,
     const Tensor weight,
     const Tensor bias,
@@ -366,7 +366,7 @@ Tensor THSTensor_conv1d_padded(
 }
 
 
-Tensor THSTensor_conv2d_padded(
+Tensor THSTensor_conv2d_padding(
     const Tensor input,
     const Tensor weight,
     const Tensor bias,
@@ -382,7 +382,7 @@ Tensor THSTensor_conv2d_padded(
         groups));
 }
 
-Tensor THSTensor_conv3d_padded(
+Tensor THSTensor_conv3d_padding(
     const Tensor input,
     const Tensor weight,
     const Tensor bias,
