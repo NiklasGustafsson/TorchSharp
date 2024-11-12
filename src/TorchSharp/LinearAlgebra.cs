@@ -136,8 +136,8 @@ namespace TorchSharp
             /// </summary>
             /// <param name="input">The input tensor</param>
             /// <param name="offset">Which diagonal to consider. Default: 0 (main diagonal).</param>
-            /// <param name="dim1">First dimension with respect to which to take diagonal. Default: -1.</param>
-            /// <param name="dim2">Second dimension with respect to which to take diagonal. Default: -2.</param>
+            /// <param name="dim1">First dimension with respect to which to take diagonal. Default: -2.</param>
+            /// <param name="dim2">Second dimension with respect to which to take diagonal. Default: -1.</param>
             /// <remarks>
             /// Applying torch.diag_embed() to the output of this function with the same arguments yields a diagonal matrix with the diagonal entries of the input.
             /// However, torch.diag_embed() has different default dimensions, so those need to be explicitly specified.
@@ -703,7 +703,7 @@ namespace TorchSharp
             /// <param name="dims">Dimensions over which to compute the norm.</param>
             /// <param name="keepdim">If set to true, the reduced dimensions are retained in the result as dimensions with size one. </param>
             /// <returns></returns>
-            public static Tensor vector_norm(Tensor input, double ord, long[]? dims = null, bool keepdim = false)
+            public static Tensor vector_norm(Tensor input, double ord = 2d, long[]? dims = null, bool keepdim = false)
             {
                 unsafe {
                     fixed (long* pdims = dims) {
