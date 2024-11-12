@@ -2,12 +2,29 @@
 
 Releases, starting with 9/2/2021, are listed with the most recent release at the top.
 
+# NuGet Version 0.104.0
+
+__Breaking Changes__:
+
+The argument defaults for `torch.diagonal()` and `Tensor.diagonal()` arguments have been changed.
+
+__Bug Fixes__:
+
+#1400 There may be an error in torchvision.transforms.GaussianBlur
+#1402 diagonal() has incorrect default
+
 # NuGet Version 0.103.1
+
+__Breaking Changes__:
+#1376 `torch.Tensor.backward`'s function signature has been updated to match PyTorch's implementation. Previously, passing `create_graph` or `retain_graph` by position would work like PyTorch's `torch.Tensor.backward`, but not if passing by name (`create_graph`'s value was swapped with `retain_graph`). This has been corrected; however, this means any code that passes `create_graph` or `retain_graph` by name needs to be updated to reflect the intended functionality.<br/>
 
 __Bug Fixes__:
 
 #1383 `torch.linalg.vector_norm`: Make `ord`-argument optional, as specified in docs<br/>
 #1385 PackedSequence now participates in the DisposeScope system at the same level as Tensor objects.<br/>
+#1387 Attaching tensor to a DisposeScope no longer makes Statistics.DetachedFromScopeCount go negative.<br/>
+#1390 DisposeScopeManager.Statistics now includes DisposedOutsideScopeCount and AttachedToScopeCount. ThreadTotalLiveCount is now exact instead of approximate. ToString gives a useful debug string, and documentation is added for how to troubleshoot memory leaks. Also DisposeScopeManager.Statistics.TensorStatistics and DisposeScopeManager.Statistics.PackedSequenceStatistics provide separate metrics for these objects.<br/>
+#1392 ToTensor() extension method memory leaks fixed.<br/>
 
 # NuGet Version 0.103.0
 
