@@ -488,9 +488,9 @@ namespace TorchSharp
                 /// The image is expected to have […, H, W] shape, where … means an arbitrary number of leading dimensions.
                 /// </summary>
                 /// <returns></returns>
-                public static Tensor gaussian_blur(Tensor input, long kernelSize, float sigma)
+                public static Tensor gaussian_blur(Tensor input, long kernel_size, float sigma)
                 {
-                    return gaussian_blur(input, new long[] { kernelSize, kernelSize }, new float[] { sigma });
+                    return gaussian_blur(input, new long[] { kernel_size, kernel_size }, new float[] { sigma });
                 }
 
                 /// <summary>
@@ -698,11 +698,6 @@ namespace TorchSharp
                 /// <returns></returns>
                 public static Tensor resize(Tensor input, int height, int width, int? maxSize = null)
                 {
-                    if (height <= 0 || width <= 0) 
-                        throw new ArgumentException("the height and width parameters must both be greater than 0");
-                    if (maxSize.HasValue && maxSize.Value <= 0) 
-                        throw new ArgumentException("the maxSize parameter must be greater than 0");
-
                     // For now, we don't allow any other modes.
                     const InterpolationMode interpolation = InterpolationMode.Nearest;
 
